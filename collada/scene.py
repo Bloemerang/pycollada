@@ -24,7 +24,6 @@ Supported scene nodes are:
 """
 
 import copy
-import numpy
 
 from collada.common import DaeObject, E, tag
 from collada.common import DaeError, DaeIncompleteError, DaeBrokenRefError, \

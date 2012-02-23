@@ -12,8 +12,6 @@
 
 """Contains objects for representing cameras"""
 
-import numpy
-
 from collada.common import DaeObject, E, tag
 from collada.common import DaeIncompleteError, DaeBrokenRefError, \
         DaeMalformedError

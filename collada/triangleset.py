@@ -12,8 +12,6 @@
 
 """Module containing classes and functions for the <triangles> primitive."""
 
-import numpy
-
 from collada import primitive
 from collada.common import E, tag
 from collada.common import DaeIncompleteError, DaeBrokenRefError, \

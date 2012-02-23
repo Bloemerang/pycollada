@@ -1,3 +1,5 @@
+import itertools, operator
+from functools import partial
 from collada.xmlutil import etree, ElementMaker, COLLADA_NS
 
 E = ElementMaker(namespace=COLLADA_NS, nsmap={None: COLLADA_NS})
@@ -5,6 +7,16 @@ E = ElementMaker(namespace=COLLADA_NS, nsmap={None: COLLADA_NS})
 
 def tag(text):
     return str(etree.QName(COLLADA_NS, text))
+
+
+def space_split(s):
+    i = iter(s)
+    while True:
+        element = ''.join(itertools.takewhile(partial(operator.ne, ' '), i))
+        if element:
+            yield element
+        else:
+            break
 
 
 class DaeObject(object):

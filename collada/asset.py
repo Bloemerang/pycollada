@@ -12,7 +12,6 @@
 
 """Contains COLLADA asset information."""
 
-import numpy
 import datetime
 import dateutil.parser
 

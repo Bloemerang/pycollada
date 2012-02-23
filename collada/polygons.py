@@ -12,8 +12,6 @@
 
 """Module containing classes and functions for the <polygons> primitive."""
 
-import numpy
-
 from collada import primitive
 from collada import polylist
 from collada import triangleset

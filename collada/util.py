@@ -12,7 +12,6 @@
 
 """This module contains utility functions"""
 
-import numpy
 import math
 import sys
 

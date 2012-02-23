@@ -20,7 +20,6 @@ This module contains all the functionality to load and manage:
 """
 
 import copy
-import numpy
 
 from collada.common import DaeObject, E, tag
 from collada.common import DaeIncompleteError, DaeBrokenRefError, \

@@ -12,8 +12,6 @@
 
 """Module containing classes and functions for the <lines> primitive."""
 
-import numpy
-
 from collada import primitive
 from collada.util import toUnitVec, checkSource
 from collada.common import E, tag

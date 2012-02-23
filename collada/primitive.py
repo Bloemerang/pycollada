@@ -11,7 +11,6 @@
 ####################################################################
 
 """Module containing the base class for primitives"""
-import numpy
 import types
 
 from collada.common import DaeObject

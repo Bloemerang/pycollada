@@ -12,10 +12,9 @@
 
 """Module for managing data sources defined in geometry tags."""
 
-import numpy
-
-from collada.common import DaeObject, E, tag
+from collada.common import DaeObject, E, tag, space_split
 from collada.common import DaeIncompleteError, DaeBrokenRefError, DaeMalformedError
+from collada.common import DaeUnsupportedError
 from collada.xmlutil import etree as ElementTree
 
 class InputList(object):
@@ -110,7 +109,7 @@ class FloatSource(Source):
 
         :param str id:
           A unique string identifier for the source
-        :param numpy.array data:
+        :param list data:
           Numpy array (unshaped) with the source values
         :param tuple components:
           Tuple of strings describing the semantic of the data,
@@ -121,23 +120,23 @@ class FloatSource(Source):
 
         """
 
+        assert(len(components))
+        assert(len(data) % len(components) == 0)
+
         self.id = id
         """The unique string identifier for the source"""
         self.data = data
-        """Numpy array with the source values. This will be shaped as ``(-1,N)`` where ``N = len(self.components)``"""
-        self.data.shape = (-1, len(components) )
+        """List with the source values. This will be shaped as ``(-1,N)`` where ``N = len(self.components)``"""
         self.components = components
         """Tuple of strings describing the semantic of the data, e.g. ``('X','Y','Z')``"""
         if xmlnode != None:
             self.xmlnode = xmlnode
             """ElementTree representation of the source."""
         else:
-            self.data.shape = (-1,)
-            txtdata = ' '.join(map(str, self.data.tolist() ))
-            rawlen = len( self.data )
-            self.data.shape = (-1, len(self.components) )
-            acclen = len( self.data )
+            txtdata = ' '.join(map(str, self.data))
             stridelen = len(self.components)
+            rawlen = len( self.data )
+            acclen = len( self.data ) // stridelen
             sourcename = "%s-array"%self.id
 
             self.xmlnode = E.source(
@@ -149,19 +148,16 @@ class FloatSource(Source):
                 )
             , id=self.id )
 
-    def __len__(self): return len(self.data)
+    def __len__(self): return len(self.data) // len(self.components)
 
-    def __getitem__(self, i): return self.data[i]
+    def __getitem__(self, i): return self.data[i*len(self.components):(i+1)*len(self.components)]
 
     def save(self):
         """Saves the source back to :attr:`xmlnode`"""
-        self.data.shape = (-1,)
-
-        txtdata = ' '.join(map(lambda x: '%.7g'%x , self.data.tolist()))
+        txtdata = ' '.join(map(lambda x: '%.7g'%x , self.data))
 
         rawlen = len( self.data )
-        self.data.shape = (-1, len(self.components) )
-        acclen = len( self.data )
+        acclen = len( self.data ) // len(self.components)
         node = self.xmlnode.find(tag('float_array'))
         node.text = txtdata
         node.set('count', str(rawlen))
@@ -181,11 +177,11 @@ class FloatSource(Source):
         arraynode = node.find(tag('float_array'))
         if arraynode is None: raise DaeIncompleteError('No float_array in source node')
         if arraynode.text is None:
-            data = numpy.array([], dtype=numpy.float32)
+            data = []
         else:
-            try: data = numpy.fromstring(arraynode.text, dtype=numpy.float32, sep=' ')
+            try: data = list(map(float, space_split(arraynode.text)))
+            #try: data = numpy.fromstring(arraynode.text, dtype=numpy.float32, sep=' ')
             except ValueError: raise DaeMalformedError('Corrupted float array')
-        data[numpy.isnan(data)] = 0
 
         paramnodes = node.findall('%s/%s/%s'%(tag('technique_common'), tag('accessor'), tag('param')))
         if not paramnodes: raise DaeIncompleteError('No accessor info in source node')
@@ -194,6 +190,7 @@ class FloatSource(Source):
             #U,V is used for "generic" arguments - convert to S,T
             components = ['S', 'T']
         if len(components) == 3 and components[0] == 'S' and components[1] == 'T' and components[2] == 'P':
+            raise DaeUnsupportedError('No 3D texcoord support')
             components = ['S', 'T']
             data.shape = (-1, 3)
             #remove 3d texcoord dimension because we don't support it

@@ -12,8 +12,6 @@
 
 """Module containing classes and functions for the <polylist> primitive."""
 
-import numpy
-
 from collada import primitive
 from collada import triangleset
 from collada.common import E, tag
